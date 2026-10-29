@@ -51,41 +51,36 @@ A aplicação foi orquestrada em microsserviços via Docker Compose:
 
 - **Comportamento do Usuário Virtual**: Implementado via `SequentialTaskSet`, cada usuário virtual executa rigorosamente uma **sequência de 10 requisições HTTP GET** ordenadas, requisitando uma URL diferente a cada invocação (`page1.html` até `page10.html`).
 - **Tempo de Espera (*wait_time*)**: Pausa controlada de 0.5 a 1.5 s entre cada ciclo de extrações.
-- **Calibragem Contínua de Carga**: Para cobrir desde o tempo de resposta puro até a saturação real do sistema, foram testados 5 níveis contínuos de usuários simultâneos:
+- **Calibragem Contínua de Carga**: Para cobrir desde o tempo de resposta puro até a saturação real do sistema, foram testados 4 níveis contínuos de usuários simultâneos:
   - **10 usuários**: Carga mínima / linha de base.
   - **50 usuários**: Carga leve.
   - **100 usuários**: Carga média nominal.
-  - **200 usuários**: Carga alta.
-  - **300 usuários**: Carga de estresse extremo.
+  - **200 usuários**: Carga alta / estresse.
 
 ---
 
 ## 3. Tabela Consolidada de Resultados
 
-Todas as 20 baterias de teste foram executadas com **100% de sucesso (0 falhas em mais de 53.000 requisições)**:
+Todas as 16 baterias de teste foram executadas com **100% de sucesso (0 falhas em mais de 32.000 requisições)**:
 
 | Cenário | Usuários | Reqs Totais | Falhas | Tempo Médio | Mediana (p50) | p90 | p95 | Vazão (RPS) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Python c/ Cache** | 10 | 354 | **0%** | **2,2 ms** | **2,0 ms** | 2,0 ms | 3,0 ms | 10,0 req/s |
-| **Python c/ Cache** | 50 | 1.779 | **0%** | **2,1 ms** | **2,0 ms** | 2,0 ms | 3,0 ms | 50,4 req/s |
-| **Python c/ Cache** | 100 | 3.539 | **0%** | **2,1 ms** | **2,0 ms** | 2,0 ms | 3,0 ms | 100,4 req/s |
-| **Python c/ Cache** | 200 | 7.060 | **0%** | **2,4 ms** | **2,0 ms** | 3,0 ms | 3,0 ms | 200,5 req/s |
-| **Python c/ Cache** | 300 | 10.588 | **0%** | **2,6 ms** | **2,0 ms** | 3,0 ms | 4,0 ms | **301,0 req/s** |
-| **Python s/ Cache** | 10 | 347 | **0%** | 7,1 ms | 6,0 ms | 9,0 ms | 14,0 ms | 9,8 req/s |
-| **Python s/ Cache** | 50 | 1.747 | **0%** | 6,4 ms | 5,0 ms | 8,0 ms | 13,0 ms | 49,7 req/s |
-| **Python s/ Cache** | 100 | 3.513 | **0%** | 6,3 ms | 5,0 ms | 8,0 ms | 12,0 ms | 99,8 req/s |
-| **Python s/ Cache** | 200 | 7.055 | **0%** | 7,1 ms | 6,0 ms | 9,0 ms | 11,0 ms | 200,4 req/s |
-| **Python s/ Cache** | 300 | 10.510 | **0%** | 7,8 ms | 7,0 ms | 11,0 ms | 13,0 ms | 298,7 req/s |
-| **Ruby c/ Cache** | 10 | 354 | **0%** | **2,9 ms** | **2,0 ms** | 2,0 ms | 3,0 ms | 10,1 req/s |
-| **Ruby c/ Cache** | 50 | 875 | **0%** | 297,7 ms | 260,0 ms | 400,0 ms | 430,0 ms | 24,9 req/s |
-| **Ruby c/ Cache** | 100 | 881 | **0%** | 1.411,7 ms | 1.300,0 ms | 1.500,0 ms | 1.500,0 ms | 24,8 req/s |
-| **Ruby c/ Cache** | 200 | 875 | **0%** | 276,1 ms | 270,0 ms | 380,0 ms | 420,0 ms | 24,9 req/s |
-| **Ruby c/ Cache** | 300 | 872 | **0%** | 247,5 ms | 250,0 ms | 350,0 ms | 380,0 ms | 24,8 req/s |
-| **Ruby s/ Cache** | 10 | 361 | **0%** | 6,8 ms | 5,0 ms | 9,0 ms | 17,0 ms | 10,2 req/s |
-| **Ruby s/ Cache** | 50 | 855 | **0%** | 376,3 ms | 310,0 ms | 450,0 ms | 490,0 ms | 24,2 req/s |
-| **Ruby s/ Cache** | 100 | 856 | **0%** | 320,2 ms | 300,0 ms | 430,0 ms | 470,0 ms | 24,3 req/s |
-| **Ruby s/ Cache** | 200 | 855 | **0%** | 333,8 ms | 320,0 ms | 420,0 ms | 460,0 ms | 24,3 req/s |
-| **Ruby s/ Cache** | 300 | 855 | **0%** | 373,4 ms | 320,0 ms | 460,0 ms | 500,0 ms | 24,2 req/s |
+| **Python c/ Cache** | 10 | 347 | **0%** | **2,8 ms** | **2,0 ms** | 2,0 ms | 3,0 ms | 9,8 req/s |
+| **Python c/ Cache** | 50 | 1.760 | **0%** | **2,2 ms** | **2,0 ms** | 3,0 ms | 3,0 ms | 49,9 req/s |
+| **Python c/ Cache** | 100 | 3.552 | **0%** | **2,1 ms** | **2,0 ms** | 3,0 ms | 3,0 ms | 100,7 req/s |
+| **Python c/ Cache** | 200 | 7.083 | **0%** | **2,1 ms** | **2,0 ms** | 3,0 ms | 3,0 ms | **200,8 req/s** |
+| **Python s/ Cache** | 10 | 353 | **0%** | 16,5 ms | 15,0 ms | 21,0 ms | 27,0 ms | 10,0 req/s |
+| **Python s/ Cache** | 50 | 1.729 | **0%** | 33,5 ms | 17,0 ms | 47,0 ms | 120,0 ms | 48,6 req/s |
+| **Python s/ Cache** | 100 | 3.450 | **0%** | 22,5 ms | 17,0 ms | 37,0 ms | 45,0 ms | 98,1 req/s |
+| **Python s/ Cache** | 200 | 6.388 | **0%** | **109,2 ms** | 44,0 ms | 240,0 ms | **520,0 ms** | 180,0 req/s |
+| **Ruby c/ Cache** | 10 | 341 | **0%** | **4,7 ms** | **2,0 ms** | 3,0 ms | 8,0 ms | 9,8 req/s |
+| **Ruby c/ Cache** | 50 | 864 | **0%** | 365,4 ms | 300,0 ms | 460,0 ms | 490,0 ms | 24,9 req/s |
+| **Ruby c/ Cache** | 100 | 880 | **0%** | 277,3 ms | 250,0 ms | 380,0 ms | 410,0 ms | 24,9 req/s |
+| **Ruby c/ Cache** | 200 | 879 | **0%** | 294,6 ms | 280,0 ms | 400,0 ms | 440,0 ms | 24,9 req/s |
+| **Ruby s/ Cache** | 10 | 347 | **0%** | 11,0 ms | 8,0 ms | 19,0 ms | 26,0 ms | 9,8 req/s |
+| **Ruby s/ Cache** | 50 | 834 | **0%** | 276,5 ms | 260,0 ms | 400,0 ms | 440,0 ms | 23,6 req/s |
+| **Ruby s/ Cache** | 100 | 841 | **0%** | 312,3 ms | 280,0 ms | 410,0 ms | 440,0 ms | 23,8 req/s |
+| **Ruby s/ Cache** | 200 | 843 | **0%** | 362,2 ms | 300,0 ms | 430,0 ms | 480,0 ms | 23,8 req/s |
 
 ---
 
@@ -95,37 +90,39 @@ Todas as 20 baterias de teste foram executadas com **100% de sucesso (0 falhas e
 ![Tempo Médio de Resposta](graficos/tempo_medio.png)
 ![Mediana do Tempo de Resposta](graficos/mediana_p50.png)
 
-- **Python com Cache**: Excepcional consistência, mantendo tempo médio entre **2,1 ms e 2,6 ms** e mediana em **2,0 ms** do primeiro ao último teste (300 usuários).
-- **Python sem Cache**: Tempo médio entre **6,3 ms e 7,8 ms**. A extração direta a cada requisição triplica o tempo de resposta, mas o throughput se mantém alto.
-- **Ruby**: Apresenta latência excelente com 10 usuários (~2,9 ms com cache), mas entra em saturação a partir de 50 usuários, com a mediana subindo para a faixa de **250 ms a 320 ms** devido ao enfileiramento na porta do serviço.
+- **Python com Cache**: Apresentou estabilidade absoluta, mantendo tempo médio entre **2,1 ms e 2,8 ms** e mediana em **2,0 ms** em todos os regimes de concorrência (de 10 a 200 usuários).
+- **Python sem Cache**: O tempo médio começa em 16,5 ms e sobe para **109,2 ms** (mediana 44 ms, p95 de **520 ms**) sob 200 usuários simultâneos, refletindo o custo cumulativo de parsing do DOM de páginas realistas de 60 KB.
+- **Ruby**: Com 10 usuários, apresenta excelente latência (**4,7 ms** com cache vs 11,0 ms sem cache). A partir de 50 usuários, entra em saturação de processo único (Puma com GVL), com mediana oscilando entre **250 ms e 300 ms** devido ao enfileiramento na porta do serviço.
 
 ### 4.2 Vazão e Throughput (Requisições por Segundo)
 ![Requisições por Segundo](graficos/req_por_segundo.png)
 
-- **Escalabilidade Linear no Python**: A vazão escala de forma contínua acompanhando perfeitamente a demanda dos usuários virtuais: de **10 req/s** (10 usuários) até atingir **301 req/s** (300 usuários).
-- **Platô de Saturação no Ruby**: O Ruby atinge um teto estrito de capacidade em **~25 req/s** (24,8 a 24,9 req/s), não conseguindo elevar a vazão mesmo sob 200 e 300 usuários.
+- **Escalabilidade Linear no Python**: A vazão escala de forma contínua acompanhando a carga dos usuários virtuais: de **9,8 req/s** (10 usuários) até atingir **200,8 req/s** (200 usuários).
+- **Platô de Saturação no Ruby**: O Ruby atinge um teto estrito de capacidade em **~24,9 req/s**, mantendo essa mesma vazão de 50 a 200 usuários devido à saturação do processo único.
 
 ### 4.3 Percentil 95 (p95) e Distribuição de Percentis
 ![Percentil 95](graficos/percentil_95.png)
 ![Curva de Distribuição de Percentis](graficos/curva_percentis.png)
 
-- O **p95 do Python com Cache** permaneceu abaixo de **4 ms** em todos os testes, comprovando que 95% das respostas chegam quase instantaneamente.
-- No Ruby, o p95 atinge de **380 ms a 500 ms** nas cargas elevadas, refletindo o tempo que as conexões excedentes aguardam no buffer do socket TCP.
+- O **p95 do Python com Cache** permaneceu cravado em **3,0 ms** mesmo sob 200 usuários, comprovando que 95% das respostas chegam de forma praticamente instantânea.
+- No **Python sem Cache**, o p95 degradou de 27 ms (10 usuários) para **520 ms** (200 usuários).
+- No **Ruby**, o p95 atinge de **410 ms a 490 ms** nas cargas elevadas, refletindo o tempo que as conexões excedentes aguardam no buffer do socket TCP (*queuing delay*).
 
 ---
 
 ## 5. Principais Conclusões Técnicas
 
 1. **Cálculo de Speedup do Redis**:
-   $$\text{Speedup} = \frac{\text{Tempo Sem Cache}}{\text{Tempo Com Cache}} = \frac{7,1\text{ ms}}{2,2\text{ ms}} \approx 3,23\times$$
-   O cache em memória proporcionou uma **redução de ~67% a 70% na latência** (aceleração superior a 3×), poupando CPU de reprocessamento DOM e eliminando tráfego HTTP repetido.
+   $$\text{Speedup (200 usuários)} = \frac{\text{Tempo Sem Cache}}{\text{Tempo Com Cache}} = \frac{109,2\text{ ms}}{2,1\text{ ms}} \approx 52\times$$
+   Com páginas realistas (40–60 KB e 60–90 links), o cache em memória reduziu a latência em mais de 98% sob 200 usuários simultâneos (uma aceleração de **52×**), comprovando a eficácia do padrão *Cache-Aside* ao poupar CPU e I/O de reprocessamento DOM.
 
 2. **Diferença Arquitetural: Gunicorn (Python) vs Puma/Sinatra (Ruby)**:
-   - O Python utilizou o servidor **Gunicorn em modelo prefork multi-worker com threads** (`-w 4 --threads 2`), distribuindo o processamento nos múltiplos núcleos do processador.
-   - O Ruby executou em **processo único**, sendo limitado pela trava global do interpretador (GIL / GVL) em operações concorrentes de string/parsing. Isso comprova que em sistemas distribuídos a **arquitetura do servidor de aplicação** é tão determinante quanto a linguagem escolhida.
+   - O Python utilizou o servidor **Gunicorn em modelo prefork multi-worker com threads** (`-w 4 --threads 2`), distribuindo as requisições em paralelo entre múltiplos núcleos do processador.
+   - O Ruby executou em **processo único**, sendo limitado pela trava global do interpretador (GVL/GIL) em operações concorrentes de string/parsing. Isso comprova que em sistemas distribuídos a **arquitetura do servidor de aplicação** é tão determinante quanto a linguagem escolhida.
 
 3. **O Fenômeno de *Cache Stampede* (*Thundering Herd*)**:
-   - O pico pontual observado na mediana do teste de 100 usuários no Ruby decorreu da largada concorrente de 100 usuários com o cache completamente vazio (*cold start*), enfileirando temporariamente o processo. Em 200 e 300 usuários, as chaves foram aquecidas mais rapidamente, estabilizando a latência na média de espera da fila (~250 ms). Em sistemas de produção, essa anomalia é mitigada através de *Locks Distribuídos* (`SET NX` no Redis) ou rotinas de *Cache Warming*.
+   - Observado no teste de 50 usuários do Ruby com cache frio, onde a largada concorrente de 50 clientes disputando as mesmas URLs não cacheadas gerou miss coletivo simultâneo e elevou o tempo médio para 365,4 ms.
+   - Conforme o número de requisições aumentou (100 e 200 usuários), as chaves aquecidas permitiram ao cache superar o cenário sem cache (277 ms vs 312 ms a 100 usuários, e 294 ms vs 362 ms a 200 usuários). Em sistemas de produção, essa anomalia é mitigada através de *Locks Distribuídos* (`SET NX` no Redis) ou rotinas de *Cache Warming*.
 
 ---
 

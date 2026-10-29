@@ -3,7 +3,7 @@
 Combinações:
   - Linguagem: Python vs Ruby
   - Cache: Com Cache (Redis) vs Sem Cache
-  - Usuários Virtuais: 10, 50, 100, 200, 300
+  - Usuários Virtuais: 10, 50, 100, 200 (com páginas ricas de ~60KB e 80 links)
 
 Total de 4 cenários:
   1. python_cache   (http://api-python-cache:5000)
@@ -21,8 +21,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 RESULTS = ROOT / "results"
 
-# Progressão completa: desde carga leve (10) até carga de estresse real (200, 300)
-USERS = [10, 50, 100, 200, 300]
+# 4 Patamares cientificamente calibrados sob carga realista
+USERS = [10, 50, 100, 200]
 DURATION = 35      # segundos de medição estável
 RAMP = 5           # segundos de rampa de subida dos usuários
 
@@ -129,11 +129,18 @@ def main():
 
     RESULTS.mkdir(exist_ok=True)
 
-    print("Garantindo que todos os contêineres estejam iniciados...")
+    # 1. Garante que as páginas realistas estão geradas
+    try:
+        from generate_mock_pages import main as gen_pages
+        gen_pages()
+    except Exception:
+        subprocess.run([sys.executable, str(ROOT / "scripts" / "generate_mock_pages.py")], check=False)
+
+    print("\nGarantindo que todos os contêineres estejam iniciados...")
     compose("up", "-d")
     time.sleep(1)
 
-    print(f"\nBateria de testes configurada para usuários: {args.users}")
+    print(f"\nIniciando bateria de testes com páginas ricas para usuários: {args.users}")
 
     for scen in args.scenarios:
         cfg = SCENARIOS_CONFIG[scen]
