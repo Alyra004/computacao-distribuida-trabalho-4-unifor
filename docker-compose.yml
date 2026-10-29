@@ -1,0 +1,75 @@
+services:
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  api-python-cache:
+    build:
+      context: ./api-python
+    restart: unless-stopped
+    environment:
+      - ENABLE_CACHE=true
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+
+  api-python-nocache:
+    build:
+      context: ./api-python
+    restart: unless-stopped
+    environment:
+      - ENABLE_CACHE=false
+      - REDIS_URL=redis://redis:6379
+
+  api-ruby-cache:
+    build:
+      context: ./api-ruby
+    restart: unless-stopped
+    environment:
+      - ENABLE_CACHE=true
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+
+  api-ruby-nocache:
+    build:
+      context: ./api-ruby
+    restart: unless-stopped
+    environment:
+      - ENABLE_CACHE=false
+      - REDIS_URL=redis://redis:6379
+
+  web:
+    build:
+      context: ./web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      - API_ENDPOINT=http://api-python-cache:5000/api/
+    depends_on:
+      - api-python-cache
+      - api-ruby-cache
+
+  mock-target:
+    image: nginx:alpine
+    restart: unless-stopped
+    volumes:
+      - ./mock-server/html:/usr/share/nginx/html:ro
+
+  locust:
+    image: locustio/locust:2.32.0
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./locust:/mnt/locust
+      - ./results:/mnt/results
+    environment:
+      - LOCUST_LOCUSTFILE=/mnt/locust/locustfile.py
+    depends_on:
+      - api-python-cache
+      - api-python-nocache
+      - api-ruby-cache
+      - api-ruby-nocache
+      - mock-target
