@@ -94,6 +94,55 @@ def plotar_metrica(dados, metrica_nome, metrica_label, unidade, fn_valor, saida:
     print(f"Gráfico gerado: {saida.name}")
 
 
+def plotar_taxa_falhas(dados, saida: Path):
+    """Taxa de falhas (%) por cenário/carga, com anotação do total de falhas."""
+    import numpy as np
+    cenarios = [c for c in ["python_cache", "python_nocache", "ruby_cache", "ruby_nocache"] if c in dados]
+    todos_usuarios = sorted({u for c in cenarios for u in dados[c]})
+    if not todos_usuarios:
+        return
+
+    fig, ax = plt.subplots(figsize=(max(9.0, 2.0 * len(todos_usuarios)), 5.5))
+    largura = 0.18
+    x = np.arange(len(todos_usuarios))
+    max_taxa = 0.0
+    total_falhas = 0
+    total_reqs = 0
+
+    for idx, cenario in enumerate(cenarios):
+        taxas = []
+        for u in todos_usuarios:
+            r = dados[cenario].get(u)
+            reqs = int(float(r["Request Count"])) if r else 0
+            falhas = int(float(r["Failure Count"])) if r else 0
+            total_reqs += reqs
+            total_falhas += falhas
+            taxas.append(100.0 * falhas / reqs if reqs else 0.0)
+        max_taxa = max(max_taxa, *taxas)
+        pos = x + (idx - (len(cenarios) - 1) / 2) * largura
+        barras = ax.bar(pos, taxas, largura, label=ROTULOS.get(cenario, cenario), color=CORES.get(cenario))
+        for b, t in zip(barras, taxas):
+            ax.annotate(f"{t:.1f}%", (b.get_x() + b.get_width() / 2, t), ha="center", va="bottom",
+                        fontsize=8, xytext=(0, 2), textcoords="offset points")
+
+    ax.set_ylim(0, max(1.0, max_taxa * 1.2))
+    ax.set_title("Link Extractor: Taxa de Falhas", fontsize=14, fontweight="bold", pad=12)
+    ax.set_xlabel("Número de Usuários Virtuais Simultâneos", fontsize=11)
+    ax.set_ylabel("Taxa de Falhas (%)", fontsize=11)
+    ax.set_xticks(x)
+    ax.set_xticklabels([f"{u} usuários" for u in todos_usuarios])
+    ax.legend(frameon=True, loc="upper left")
+    ax.grid(axis="y", linestyle="--", alpha=0.5)
+    ax.text(0.99, 0.95, f"Total: {total_falhas} falhas em {total_reqs:,} requisições".replace(",", "."),
+            transform=ax.transAxes, ha="right", va="top", fontsize=10,
+            bbox=dict(boxstyle="round", facecolor="#f0fff4", edgecolor="#38a169"))
+
+    fig.tight_layout()
+    fig.savefig(saida, dpi=150)
+    plt.close(fig)
+    print(f"Gráfico gerado: {saida.name}")
+
+
 def plotar_percentis(dados, saida: Path):
     percentis_cols = ["50%", "66%", "75%", "80%", "90%", "95%", "98%", "99%"]
     cenarios = [c for c in ["python_cache", "python_nocache", "ruby_cache", "ruby_nocache"] if c in dados]
@@ -185,6 +234,7 @@ def main():
         args.out / "req_por_segundo.png"
     )
 
+    plotar_taxa_falhas(dados, args.out / "taxa_falhas.png")
     plotar_percentis(dados, args.out / "curva_percentis.png")
     gerar_tabela_resumo(dados, args.out / "tabela_resumo.md")
 
